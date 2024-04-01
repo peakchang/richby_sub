@@ -293,6 +293,14 @@
 		</div>
 	{/if}
 
+	<div class="text-sm">
+		<span class="inline-block mr-3">
+			홈페이지제작 : 리치분양
+		</span>
+	</div>
+
+	
+
 	<div class="text-sm mt-3">
 		copyright@ {$page.url.origin}
 	</div>
