@@ -587,7 +587,7 @@
 
         <table class="w-full">
             <tr>
-                <th class="border p-1 w-1/6 text-xs md:text-sm">이름</th>
+                <th class="border p-1 w-1/6 text-xs md:text-sm">카톡아이디</th>
                 <td class="border p-1 w-2/6">
                     <input
                         type="text"

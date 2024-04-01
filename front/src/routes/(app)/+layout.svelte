@@ -266,20 +266,33 @@
 <hr class="mt-6" />
 <div class="container mx-auto max-w-4xl mb-10 p-4 suit-font">
 	<div class="text-sm">
-
-		{#if siteData.ld_ft_name}
-		<span class="inline-block mr-3">이름 : {siteData.ld_ft_name}</span>
-		{/if}
-
-		{#if siteData.ld_ft_phone}
-		<span class="inline-block mr-3">연락처 : {siteData.ld_ft_phone}</span>
-		{/if}
-
-		{#if siteData.ld_ft_address}
-		<span class="inline-block mr-3">주소 : {siteData.ld_ft_address}</span>
-		{/if}
-
+		<span class="inline-block mr-3">{siteData.ld_name}</span>
 	</div>
+
+	{#if siteData.ld_ft_phone}
+		<div class="text-sm">
+			<span class="inline-block mr-3">
+				VIP 상담문의 : {siteData.ld_ft_phone}
+			</span>
+		</div>
+	{/if}
+
+	{#if siteData.ld_ft_address}
+		<div class="text-sm">
+			<span class="inline-block mr-3">
+				방문 주소 : {siteData.ld_ft_address}
+			</span>
+		</div>
+	{/if}
+
+	{#if siteData.ld_ft_name}
+		<div class="text-sm">
+			<span class="inline-block mr-3">
+				카카오톡 문의 : {siteData.ld_ft_name}
+			</span>
+		</div>
+	{/if}
+
 	<div class="text-sm mt-3">
 		copyright@ {$page.url.origin}
 	</div>
