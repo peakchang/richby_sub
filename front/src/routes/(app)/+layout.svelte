@@ -269,7 +269,15 @@
 		<span class="inline-block mr-3">{siteData.ld_name}</span>
 	</div>
 
-	{#if siteData.ld_ft_phone}
+	{#if siteData.ld_footer}
+		<div class="text-sm py-3">
+			<span class="inline-block mr-3">
+				{siteData.ld_footer}
+			</span>
+		</div>
+	{/if}
+
+	<!-- {#if siteData.ld_ft_phone}
 		<div class="text-sm">
 			<span class="inline-block mr-3">
 				VIP 상담문의 : {siteData.ld_ft_phone}
@@ -291,17 +299,13 @@
 				카카오톡 문의 : {siteData.ld_ft_name}
 			</span>
 		</div>
-	{/if}
+	{/if} -->
 
 	<div class="text-sm">
-		<span class="inline-block mr-3">
-			홈페이지제작 : 리치분양
-		</span>
+		<span class="inline-block mr-3"> 홈페이지제작 : 리치분양 </span>
 	</div>
 
-	
-
-	<div class="text-sm mt-3">
+	<div class="text-sm mt-1">
 		copyright@ {$page.url.origin}
 	</div>
 </div>

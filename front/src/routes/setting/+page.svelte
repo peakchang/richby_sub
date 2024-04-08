@@ -580,8 +580,6 @@
         </table>
     </div>
 
-    
-
     <div class="mt-5">
         <div class="text-sm font-semibold mb-3">※ 팝업 이미지</div>
         {#if allData["ld_popup_img"]}
@@ -679,7 +677,15 @@
             <span class="text-sm font-semibold">※ 푸터 정보</span>
         </div>
 
-        <table class="w-full">
+        <div>
+            <textarea
+                class="border w-full p-3 focus:outline-none focus:border-blue-400 rounded-md text-sm"
+                rows="4"
+                bind:value={allData["ld_footer"]}
+            ></textarea>
+        </div>
+
+        <!-- <table class="w-full">
             <tr>
                 <th class="border p-1 w-1/6 text-xs md:text-sm">카톡아이디</th>
                 <td class="border p-1 w-2/6">
@@ -709,7 +715,7 @@
                     />
                 </td>
             </tr>
-        </table>
+        </table> -->
     </div>
 
     <div class="mt-5 pb-20 text-center">
