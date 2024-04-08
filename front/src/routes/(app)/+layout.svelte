@@ -54,6 +54,38 @@
 		}
 		AOS.init();
 	});
+
+	function addCallCount() {
+		console.log(siteData["ld_call_clickcount"]);
+		if (!siteData["ld_call_clickcount"]) {
+			siteData["ld_call_clickcount"] = 0;
+		}
+		console.log(siteData["ld_call_clickcount"]);
+
+		try {
+			const res = axios.post(`${back_api}/add_call_count`, {
+				ld_id: siteData["ld_id"],
+				callCount: siteData["ld_call_clickcount"],
+			});
+		} catch (error) {}
+	}
+
+	function addSmsCount() {
+		console.log(siteData["ld_sms_clickcount"]);
+		if (!siteData["ld_sms_clickcount"]) {
+			siteData["ld_sms_clickcount"] = 0;
+		}
+		console.log(siteData["ld_sms_clickcount"]);
+
+		try {
+			const res = axios.post(`${back_api}/add_sms_count`, {
+				ld_id: siteData["ld_id"],
+				smsCount: siteData["ld_sms_clickcount"],
+			});
+		} catch (error) {}
+	}
+
+	
 </script>
 
 <svelte:head>
@@ -136,8 +168,9 @@
 			<div>
 				<button
 					class=" bg-blue-500 active:bg-blue-600 w-full rounded-md p-3 text-white"
-					>신청 완료 하기</button
 				>
+					신청 완료 하기
+				</button>
 			</div>
 		</div>
 	</div>
@@ -149,7 +182,7 @@
 			<li
 				class="rounded-full border md:border-2 p-3 md:p-4 bg-white mb-3"
 			>
-				<a href="TEL:{siteData.ld_phone_num}">
+				<a href="TEL:{siteData.ld_phone_num}" on:click={addCallCount}>
 					<img src="/call_icon.png" alt="" class="w-10 md:w-14" />
 				</a>
 			</li>
@@ -160,6 +193,7 @@
 			>
 				<a
 					href="SMS:{siteData.ld_sms_num}?body={siteData.ld_name} 문의드립니다. 분양가 / 모델하우스위치가 어떻게 되나요?"
+					on:click={addSmsCount}
 				>
 					<img src="/sms_icon.png" alt="" class="w-10 md:w-14" />
 				</a>
