@@ -17,10 +17,13 @@
 	let customerPhone = "";
 	let showPopup = false;
 
+	let footerExceptionVal = false;
+
 	let formModalopen = false;
 	export let data;
 	$: data, setData();
 	function setData() {
+		footerExceptionVal = data.exceptionVal;
 		const popupShow = Cookies.get("popup_close");
 		if (popupShow == "ok") {
 			showPopup = false;
@@ -84,8 +87,6 @@
 			});
 		} catch (error) {}
 	}
-
-	
 </script>
 
 <svelte:head>
@@ -335,9 +336,11 @@
 		</div>
 	{/if} -->
 
-	<div class="text-sm">
-		<span class="inline-block mr-3"> 홈페이지제작 : 리치분양 </span>
-	</div>
+	{#if !footerExceptionVal}
+		<div class="text-sm">
+			<span class="inline-block mr-3"> 홈페이지제작 : 리치분양 </span>
+		</div>
+	{/if}
 
 	<div class="text-sm mt-1">
 		copyright@ {$page.url.origin}

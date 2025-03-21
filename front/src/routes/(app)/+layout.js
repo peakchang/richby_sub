@@ -23,6 +23,18 @@ export const load = async ({ fetch, url }) => {
 
     const subDomainName = url.hostname.split('.')[0]
     console.log(subDomainName);
+
+    let exceptionVal = false;
+
+    const exceptionList = ["hannam"];
+
+    if (exceptionList.includes(subDomainName)) {
+        exceptionVal = true;
+    }
+
+    
+
+
     let returnSubDomainName = ""
     let subView = {}
     let seoValue = {
@@ -60,7 +72,7 @@ export const load = async ({ fetch, url }) => {
 
     
 
-    return { subView, seoValue }
+    return { subView, seoValue, exceptionVal }
 }
 
 
