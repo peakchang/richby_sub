@@ -164,32 +164,29 @@ export const getRandomNumbers = (maxCount, count) => {
 }
 
 export const customerSubmit = async (name, phone, siteName) => {
-    if (!name || !phone) {
-        alert('항목이 비어있습니다.')
-        return
-    }
 
-    if(!validatePhoneNumber(phone)){
-        alert('정상적인 휴대폰 번호만 가능합니다.')
-        return
-    }
+
+    
 
     try {
         const res = await axios.post(`${back_api}/update_customer`, {
             name, phone, siteName
         })
         if (res.data.status) {
-            alert('접수가 완료 되었습니다. 빠른 시간 내 담당자가 연락 드리도록 하겠습니다')
+            return true;
+            // alert('초대장 발급이 확인 되었습니다. 배정된 담당자가 연락 드릴 예정입니다.')
         } else {
             alert('에러가 발생했습니다. 관리자에게 문의해주세요')
+            return false;
         }
-
     } catch (error) {
+        console.error(error.message);
+        
         alert('에러가 발생했습니다. 관리자에게 문의해주세요')
     }
 }
 
-function validatePhoneNumber(phoneNumber) {
+export function validatePhoneNumber(phoneNumber) {
     // 숫자로만 이루어진지 확인하는 정규표현식
     var numericPattern = /^\d+$/;
     

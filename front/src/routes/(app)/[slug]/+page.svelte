@@ -1,71 +1,267 @@
 <script>
 	import { aosStyleList } from "$lib/const.js";
 	import { customerSubmit } from "$lib/lib";
+	import { browser } from "$app/environment";
+	import { onMount } from "svelte";
 
+	// 공통 변수
 	let allSiteData = {};
+
+	// 구버전 변수
 	let imgList = [];
 	let dataAosList = [];
 	let customerName = "";
 	let customerPhone = "";
 
+	// 신버전 변수
+	let menuData = {};
+	let imgArr = [];
+	let observer;
+	let elementsToObserve;
+	let x;
+
 	export let data;
 	$: data, setData();
 	function setData() {
 		allSiteData = data.subView;
-		if (allSiteData[`ld_pg${data.index}`]) {
-			imgList = allSiteData[`ld_pg${data.index}`].split(",");
+		const nowPage = data.nowPage;
+		// 구버전 코드
+		if (!allSiteData.ld_view_type || allSiteData.ld_view_type == "old") {
+			if (allSiteData[`ld_pg${data.index}`]) {
+				imgList = allSiteData[`ld_pg${data.index}`].split(",");
+			} else {
+				imgList = [];
+			}
 		} else {
-			imgList = [];
+			// 신버전 코드
+			try {
+				// const getmenuData = JSON.parse(allSiteData.ld_json_menus);
+				// menuData = getmenuData.menus.find(
+				// 	(item) => item.link === nowPage,
+				// );
+
+				// console.log(menuData);
+
+				// if (menuData.imgArr) {
+				// 	imgArr = menuData.imgArr.map((e) => {
+				// 		let res = "";
+				// 		if (e.includes("youtube")) {
+				// 			res = generateYouTubeEmbed(e);
+				// 		} else {
+				// 			res = e;
+				// 		}
+
+				// 		return res;
+				// 	});
+				// }
+			} catch (error) {
+				console.error("세부 JSON 파싱 오류:", error);
+			}
 		}
 	}
+
+	onMount(() => {
+		if (
+			!allSiteData["ld_view_type"] ||
+			allSiteData["ld_view_type"] == "old"
+		) {
+		} else {
+			if (browser) {
+				elementsToObserve =
+					document.querySelectorAll(".observe-fade-up");
+			}
+			observer = new IntersectionObserver((entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) {
+						entry.target.classList.remove("observe-hidden");
+						entry.target.classList.add("fade-up-active");
+					} else {
+						entry.target.classList.remove("fade-up-active");
+						entry.target.classList.add("observe-hidden");
+					}
+				});
+			});
+
+			elementsToObserve.forEach((element) => {
+				// 초기 숨김 클래스 추가
+				element.classList.add("observe-hidden");
+				observer.observe(element);
+
+				// data-delay 속성이 있는 경우 CSS 변수로 전달
+				const delay = element.dataset.delay;
+				if (delay) {
+					element.style.setProperty("--fade-up-delay", `${delay}ms`);
+				}
+			});
+		}
+	});
+
+	$: x, set_x();
+	function set_x() {
+		// setEmodelRatio();
+	}
+
+	function changTab() {
+		console.log(this.value);
+
+		// 일단 tab-active 클래스 다 없애기
+		if (browser) {
+			const tabList = document.querySelectorAll(".tab");
+			const contentList = document.querySelectorAll(".emodel-area");
+
+			for (let i = 0; i < tabList.length; i++) {
+				const element = tabList[i];
+				element.classList.remove("tab-active");
+			}
+
+			for (let i = 0; i < contentList.length; i++) {
+				contentList[i].classList.add("hidden");
+			}
+			for (let i = 0; i < contentList.length; i++) {
+				if (i == this.value) {
+					contentList[i].classList.remove("hidden");
+				}
+			}
+		}
+		this.classList.add("tab-active");
+	}
+
+	// 썸네일에서 유튜브 아이디 뽑아내기!
+	function generateYouTubeEmbed(imageUrl) {
+		const match = imageUrl.match(/\/vi\/([^/]+)\//);
+		if (!match) {
+			return "유효한 YouTube 썸네일 URL이 아닙니다.";
+		}
+
+		const videoId = match[1];
+		const iframe = `<iframe width="100%" height="512" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+
+		return iframe;
+	}
+
+	// function setEmodelRatio() {
+	//     if (browser) {
+	//         const youtubeContents =
+	//             document.querySelectorAll(".emodel-area");
+
+	//         for (let i = 0; i < youtubeContents.length; i++) {
+	//             youtubeContents[i].style.width = "90%";
+	//             const elementWidth = youtubeContents[i].offsetWidth;
+	//             youtubeContents[i].style.height = `${elementWidth / 1.7778}px`;
+	//         }
+	//     }
+	// }
 </script>
 
-{#if (allSiteData.ld_site && allSiteData.ld_db_location == "up") || allSiteData.ld_db_location == "both"}
-	<div class="p-3">
+<svelte:window bind:innerWidth={x} />
+
+{#if !allSiteData.ld_view_type || allSiteData.ld_view_type == "old"}
+	{#each imgList as img, idx}
+		{#if idx == 0}
+			<div class="mb-5">
+				<img src={img} alt="" class="w-full" />
+			</div>
+		{:else}
+			<div class="mb-5" data-aos={dataAosList[idx]}>
+				<img src={img} alt="" class="w-full" />
+			</div>
+		{/if}
+	{/each}
+{:else if menuData.link == "emodel"}
+	<div class="pt-5">
 		<div
-			class="shadow-sm border p-4 md:pr-10 rounded-md suit-font block md:flex md:justify-around"
+			role="tablist"
+			class="tabs tabs-lift tabs-xl justify-center pretendard"
 		>
-			<div class="mb-3 md:mb-0">
-				<p class="text-sm text-red-500">무엇이 궁금하세요?</p>
-				<p class="text-2xl font-bold">빠른 상담 요청</p>
-			</div>
-			<div class="flex gap-2">
-				<input
-					type="text"
-					class="p-2 border focus:outline-none focus:border-yellow-600 rounded-sm w-2/5"
-					placeholder="이름"
-					bind:value={customerName}
-				/>
-				<input
-					type="text"
-					class="p-2 border focus:outline-none focus:border-yellow-600 rounded-sm w-2/5"
-					placeholder="연락처"
-					bind:value={customerPhone}
-				/>
-				<button
-					class=" bg-yellow-600 py-2 rounded-lg text-white text-sm md:text-base active:bg-yellow-700 w-1/5"
-					on:click={() => {
-						customerSubmit(
-							customerName,
-							customerPhone,
-							allSiteData.ld_site,
-						);
-					}}
-				>
-					접수하기
-				</button>
-			</div>
+			{#each menuData.emenu as emodel, idx}
+				{#if idx == 0}
+					<button
+						role="tab"
+						class="tab tab-active"
+						value={idx}
+						on:click={changTab}
+					>
+						{emodel.type}
+					</button>
+				{:else}
+					<button
+						role="tab"
+						class="tab"
+						value={idx}
+						on:click={changTab}
+					>
+						{emodel.type}
+					</button>
+				{/if}
+			{/each}
+		</div>
+
+		<div class="border">
+			{#each menuData.emenu as emodel, idx}
+				{#if idx == 0}
+					<div class="emodel-area w-[100%] type{idx}">
+						<!-- svelte-ignore a11y-missing-attribute -->
+						<iframe
+							src={emodel.iframe_link}
+							frameborder="0"
+							width="100%"
+							height="800px"
+						></iframe>
+					</div>
+				{:else}
+					<div class="emodel-area w-[100%] type{idx} hidden">
+						<!-- svelte-ignore a11y-missing-attribute -->
+						<iframe
+							src={emodel.iframe_link}
+							frameborder="0"
+							width="100%"
+							height="800px"
+						></iframe>
+					</div>
+				{/if}
+			{/each}
 		</div>
 	</div>
+{:else}
+	<div class="mt-5">
+		{#each imgArr as img}
+			{#if img.includes("iframe")}
+				<div
+					class="mb-3"
+					class:observe-hidden={menuData.effect == "on"}
+					class:observe-fade-up={menuData.effect == "on"}
+					data-delay="100"
+				>
+					{@html img}
+				</div>
+			{:else}
+				<div
+					class="mb-3"
+					class:observe-hidden={menuData.effect == "on"}
+					class:observe-fade-up={menuData.effect == "on"}
+					data-delay="100"
+				>
+					<img src={img} alt="" class="w-full" />
+				</div>
+			{/if}
+		{/each}
+	</div>
 {/if}
-{#each imgList as img, idx}
-	{#if idx == 0}
-		<div class="mb-5">
-			<img src={img} alt="" class="w-full" />
-		</div>
-	{:else}
-		<div class="mb-5" data-aos={dataAosList[idx]}>
-			<img src={img} alt="" class="w-full" />
-		</div>
-	{/if}
-{/each}
+
+<style>
+	/* 신버전 CSS */
+	.observe-hidden {
+		opacity: 0;
+		transform: translateY(40px); /* 초기 위치를 아래로 10px 이동 */
+	}
+	.observe-fade-up {
+		transition:
+			opacity 0.8s ease-out,
+			/* opacity 애니메이션 속도 조절 (더 짧게) */ transform 0.8s ease-out; /* transform 애니메이션 속도 조절 (더 짧게) */
+		transition-delay: var(--fade-up-delay, 0ms);
+	}
+	.fade-up-active {
+		opacity: 1;
+		transform: translateY(0);
+	}
+</style>

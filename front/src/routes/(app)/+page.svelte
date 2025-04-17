@@ -1,4 +1,5 @@
 <script>
+    import { browser } from "$app/environment";
     import { page } from "$app/stores";
     import { aosStyleList } from "$lib/const.js";
 
@@ -11,138 +12,242 @@
     import { onMount } from "svelte";
     import { customerSubmit } from "$lib/lib";
 
-    let loading = true;
+    // 공통 변수
     let siteData = {};
+
+    // 구버전 변수
     let mainImgList = [];
     let dataAosList = [];
     let bannerImgList = [];
     let bannerSwiper;
     let customerName = "";
-	let customerPhone = "";
+    let customerPhone = "";
+
+    // 신버전 변수
+    let observer;
+    let elementsToObserve;
+    let mainContents = [];
+    let x = 0;
 
     export let data;
-
-    onMount(() => {
-        loading = false;
-
-        // HERO SLIDER
-        var menu = [];
-        const swiper = new Swiper(bannerSwiper, {
-            // configure Swiper to use modules
-
-            modules: [Autoplay, Navigation, Pagination],
-            // centeredSlides: true,
-            loop: true,
-            autoplay: {
-                delay: 3000,
-                disableOnInteraction: false,
-            },
-
-            navigation: {
-                nextEl: ".right-btn",
-                prevEl: ".left-btn",
-            },
-            pagination: {
-                el: ".swiper-pagination",
-            },
-        });
-    });
 
     $: data, setData();
 
     function setData() {
+        // 공통
         siteData = data.subView;
-        mainImgList = siteData.ld_main_img
-            ? siteData.ld_main_img.split(",")
-            : [];
-            
-        if (siteData.ld_banner_img) {
-            bannerImgList = siteData.ld_banner_img.split(",");
+
+        // 구버전 코드
+        if (!siteData["ld_view_type"] || siteData["ld_view_type"] == "old") {
+            mainImgList = siteData.ld_main_img
+                ? siteData.ld_main_img.split(",")
+                : [];
+
+            if (siteData.ld_banner_img) {
+                bannerImgList = siteData.ld_banner_img.split(",");
+            }
+        } else {
+            // 신버전 코드
+            try {
+                mainContents = JSON.parse(siteData.ld_json_main);
+
+                // 받은 JSON 데이터 처리
+            } catch (error) {
+                console.log("에러 들어옴?!");
+
+                console.error("메인 JSON 파싱 오류:", error);
+            }
+        }
+    }
+
+    $: x, set_x();
+    function set_x() {
+        // setContentParentHeight();
+        setSectionHeight();
+        setYoutubeRatio();
+    }
+
+    onMount(() => {
+        if (!siteData["ld_view_type"] || siteData["ld_view_type"] == "old") {
+        } else {
+            if (browser) {
+                elementsToObserve =
+                    document.querySelectorAll(".observe-fade-up");
+
+                // setContentParentHeight();
+                // setContentRatio();
+            }
+            observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.remove("observe-hidden");
+                        entry.target.classList.add("fade-up-active");
+                    } else {
+                        entry.target.classList.remove("fade-up-active");
+                        entry.target.classList.add("observe-hidden");
+                    }
+                });
+            });
+
+            elementsToObserve.forEach((element) => {
+                // 초기 숨김 클래스 추가
+                element.classList.add("observe-hidden");
+                observer.observe(element);
+
+                // data-delay 속성이 있는 경우 CSS 변수로 전달
+                const delay = element.dataset.delay;
+                if (delay) {
+                    element.style.setProperty("--fade-up-delay", `${delay}ms`);
+                }
+            });
+        }
+    });
+
+    function setSectionHeight() {
+        if (browser) {
+            const backgroundArea = document.querySelectorAll(".background-area");
+            const contentArea = document.querySelectorAll(`.content-area`);
+            let ratioNum = -1;
+            let heightNum = -1;
+            for (let i = 0; i < mainContents.length; i++) {
+                const data = mainContents[i];
+                if (data.bgType == "ratio") {
+                    ratioNum++;
+                    const width = data.backgroundWidth;
+                    const height = data.backgroundHeight;
+                    const aspectRatio = height / width;
+                    const elementWidth = backgroundArea[ratioNum].offsetWidth;
+                    backgroundArea[ratioNum].style.height =
+                        `${elementWidth * aspectRatio}px`;
+                } else if (data.bgType == "height") {
+                    heightNum++;
+                    const element = contentArea[heightNum];
+                    const parent = element.parentElement;
+                    const height = element.offsetHeight;
+
+                    try {
+                        parent.style.height = `${height + Number(data.paddingTopVal) + Number(data.paddingBottomVal)}px`;
+                        parent.style.paddingTop = `${Number(data.paddingTopVal)}px`;
+                        parent.style.paddingBottom = `${Number(data.paddingBottomVal)}px`;
+                    } catch (error) {
+                        console.error(error.message);
+                    }
+                }
+            }
+        }
+    }
+
+    function setYoutubeRatio() {
+        if (browser) {
+            const youtubeContents =
+                document.querySelectorAll(".youtube-iframe");
+
+            for (let i = 0; i < youtubeContents.length; i++) {
+                youtubeContents[i].style.width = "90%";
+                const elementWidth = youtubeContents[i].offsetWidth;
+                youtubeContents[i].style.height = `${elementWidth / 1.7778}px`;
+            }
         }
     }
 </script>
 
-<svelte:head></svelte:head>
+<svelte:window bind:innerWidth={x} />
 
-{#if siteData.ld_banner_img}
-    <section>
-        <div class="swiper mb-10 relative" bind:this={bannerSwiper}>
-            <!-- Additional required wrapper -->
-            <div class="swiper-wrapper relative">
-                {#each bannerImgList as bannerImg}
-                    <div class="swiper-slide">
-                        <img src="{bannerImg}" alt="" />
-                    </div>
-                {/each}
-            </div>
-            <!-- If we need pagination -->
-            <div class="swiper-pagination"></div>
+{#if !siteData["ld_view_type"] || siteData["ld_view_type"] == "old"}
+    {#if siteData.ld_banner_img}
+        <section>
+            <div class="swiper mb-10 relative" bind:this={bannerSwiper}>
+                <!-- Additional required wrapper -->
+                <div class="swiper-wrapper relative">
+                    {#each bannerImgList as bannerImg}
+                        <div class="swiper-slide">
+                            <img src={bannerImg} alt="" />
+                        </div>
+                    {/each}
+                </div>
+                <!-- If we need pagination -->
+                <div class="swiper-pagination"></div>
 
-            <div class="left-btn top-1/2 z-20 left-7">
-                <button
-                    class="w-7 h-7 md:w-10 md:h-10 text-sm md:text-base bg-white flex justify-center items-center rounded-full text-gray-500"
-                >
-                    <i class="fa fa-chevron-left" aria-hidden="true"></i>
-                </button>
+                <div class="left-btn top-1/2 z-20 left-7">
+                    <button
+                        class="w-7 h-7 md:w-10 md:h-10 text-sm md:text-base bg-white flex justify-center items-center rounded-full text-gray-500"
+                    >
+                        <i class="fa fa-chevron-left" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="right-btn top-1/2 z-20 right-7">
+                    <button
+                        class="w-7 h-7 md:w-10 md:h-10 text-sm md:text-base bg-white flex justify-center items-center rounded-full text-gray-500"
+                    >
+                        <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="swiper-scrollbar"></div>
             </div>
-            <div class="right-btn top-1/2 z-20 right-7">
-                <button
-                    class="w-7 h-7 md:w-10 md:h-10 text-sm md:text-base bg-white flex justify-center items-center rounded-full text-gray-500"
-                >
-                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
-                </button>
-            </div>
-            <div class="swiper-scrollbar"></div>
+        </section>
+    {/if}
+
+    {#each mainImgList as mainImg, idx}
+        <div class="mb-5">
+            <img src={mainImg} alt="" class="w-full" />
         </div>
-    </section>
-{/if}
-
-{#if siteData.ld_site && siteData.ld_db_location == "up" || siteData.ld_db_location == "both"}
-	<div class="p-3">
-		<div
-			class="shadow-sm border p-4 md:pr-10 rounded-md suit-font block md:flex md:justify-around"
-		>
-			<div class="mb-3 md:mb-0">
-				<p class="text-sm text-red-500">무엇이 궁금하세요?</p>
-				<p class="text-2xl font-bold">빠른 상담 요청</p>
-			</div>
-			<div class="flex gap-2">
-				<input
-					type="text"
-					class="p-2 border focus:outline-none focus:border-yellow-600 rounded-sm w-2/5"
-					placeholder="이름"
-                    bind:value={customerName}
-				/>
-				<input
-					type="text"
-					class="p-2 border focus:outline-none focus:border-yellow-600 rounded-sm w-2/5"
-					placeholder="연락처"
-                    bind:value={customerPhone}
-				/>
-				<button
-					class=" bg-yellow-600 py-2 rounded-lg text-white text-sm md:text-base active:bg-yellow-700 w-1/5"
-                    on:click={() => {
-						customerSubmit(
-							customerName,
-							customerPhone,
-							siteData.ld_site,
-						);
-					}}
-				>
-					접수하기
-				</button>
-			</div>
-		</div>
-	</div>
-{/if}
-
-{#each mainImgList as mainImg, idx}
+    {/each}
+{:else}
     <div class="mb-5">
-        <img src={mainImg} alt="" class="w-full" />
+        {#each mainContents as mainContent}
+            <div
+                class:background-area={mainContent["bgType"] == "ratio"}
+                style="background-image: url({mainContent['backgroundImg']});"
+            >
+                <!-- height:{mainContent[
+                'height'
+            ]}px; -->
+                <div class:content-area={mainContent["bgType"] == "height"}>
+                    {#each mainContent.contentList as content}
+                        {#if content.text}
+                            <div
+                                class="px-3 pretendard"
+                                class:observe-hidden={content.effect == "on"}
+                                class:observe-fade-up={content.effect == "on"}
+                                data-delay={content.delay}
+                                style="text-align : {content.align}; color :{content.fontColor};  font-size : {content.fontSize}px; white-space: pre-line;"
+                            >
+                                {content.text}
+                            </div>
+                        {:else if content.imgPath}
+                            <div
+                                class="flex"
+                                class:justify-center={content.align == "center"}
+                                class:justify-start={content.align == "left"}
+                                class:justify-end={content.align == "right"}
+                                class:observe-hidden={content.effect == "on"}
+                                class:observe-fade-up={content.effect == "on"}
+                                data-delay={content.delay}
+                            >
+                                <div style="width:{content.width}%;">
+                                    <img src={content.imgPath} alt="" class="w-full" />
+                                </div>
+                            </div>
+                        {:else if content.marginHeight}
+                            <div
+                                style="height: {content.marginHeight}px;"
+                            ></div>
+                        {:else if content.youtubeTag}
+                            <div
+                                class="youtube-container mt-3 flex justify-center"
+                            >
+                                {@html content.youtubeTag}
+                            </div>
+                        {/if}
+                    {/each}
+                </div>
+            </div>
+        {/each}
     </div>
-{/each}
+{/if}
 
 <style>
+    /* 구버전 CSS */
     .right-btn {
         position: absolute;
         transform: translate(50%, -50%);
@@ -151,5 +256,26 @@
     .left-btn {
         position: absolute;
         transform: translate(-50%, -50%);
+    }
+
+    /* 신버전 CSS */
+    .observe-hidden {
+        opacity: 0;
+        transform: translateY(40px); /* 초기 위치를 아래로 10px 이동 */
+    }
+    .observe-fade-up {
+        transition:
+            opacity 0.8s ease-out,
+            /* opacity 애니메이션 속도 조절 (더 짧게) */ transform 0.8s ease-out; /* transform 애니메이션 속도 조절 (더 짧게) */
+        transition-delay: var(--fade-up-delay, 0ms);
+    }
+    .fade-up-active {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .background-area {
+        background-repeat: no-repeat;
+        background-size: 100% auto;
     }
 </style>

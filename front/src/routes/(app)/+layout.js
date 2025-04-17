@@ -7,33 +7,7 @@ import Cookies from 'js-cookie';
 
 export const load = async ({ fetch, url }) => {
 
-
-
-    console.log('시자꾸~~~~~~~~~~~~~~~~~~~~~~~~!!!!!!!!!!!!!!!!');
-    let addTitle = ""
-    if (url.href.includes("premium")) {
-        addTitle = " - 프리미엄"
-    } else if (url.href.includes("overview")) {
-        addTitle = " - 사업소개"
-    } else if (url.href.includes("environ")) {
-        addTitle = " - 입지환경"
-    } else if (url.href.includes("product")) {
-        addTitle = " - 상품안내"
-    }
-
     const subDomainName = url.hostname.split('.')[0]
-    console.log(subDomainName);
-
-    let exceptionVal = false;
-
-    const exceptionList = ["hannam"];
-
-    if (exceptionList.includes(subDomainName)) {
-        exceptionVal = true;
-    }
-
-    
-
 
     let returnSubDomainName = ""
     let subView = {}
@@ -62,17 +36,40 @@ export const load = async ({ fetch, url }) => {
         return error('404', 'asjfaisjfilasjdf')
     }
 
+    let addTitle = "";
+
+
+    if (!subView.ld_view_type || subView.ld_view_type == 'old') {
+        if (url.href.includes("premium")) {
+            addTitle = " - 프리미엄"
+        } else if (url.href.includes("overview")) {
+            addTitle = " - 사업소개"
+        } else if (url.href.includes("environ")) {
+            addTitle = " - 입지환경"
+        } else if (url.href.includes("product")) {
+            addTitle = " - 상품안내"
+        }
+    }
+
     seoValue['title'] = subView.ld_name + addTitle
     seoValue['description'] = subView.ld_description
-    seoValue["image"] = subView['ld_main_img'] ? subView['ld_main_img'].split(',')[0] : "";
     seoValue['published_time'] = subView['ld_created_at']
-    subView["date_str"] = moment(subView.ld_created_at).format('YYYY-MM-DD HH:mm');
+    seoValue["date_str"] = moment(subView.ld_created_at).format('YYYY-MM-DD HH:mm');
     seoValue['date_str'] = subView["date_str"]
 
+    if (subView.ld_view_type == 'new') {
+        const mainJson = JSON.parse(subView.ld_json_main)
+        
+        if (mainJson.length > 0) {
+            seoValue["og_image"] = subView.ld_card_image ? subView.ld_card_image : mainJson[0]['backgroundImg'].split(',')[0];
+            seoValue["image"] = mainJson ? mainJson[0]['backgroundImg'].split(',')[0] : subView.ld_card_image;
+        }
 
+    } else {
+        seoValue["image"] = subView['ld_main_img'] ? subView['ld_main_img'].split(',')[0] : "";
+    }
     
-
-    return { subView, seoValue, exceptionVal }
+    return { subView, seoValue }
 }
 
 
