@@ -5,7 +5,7 @@
 	import { onMount } from "svelte";
 
 	// 공통 변수
-	// let allSiteData = {};
+	let allSiteData = {};
 
 	// 구버전 변수
 	let imgList = [];
