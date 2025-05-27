@@ -78,7 +78,7 @@
         }
     }
 
-    async function deleteImageAct() {
+    async function deleteImageAct(e) {
         let imgUrlArr = [];
 
         switch (imgActType) {
