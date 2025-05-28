@@ -92,8 +92,8 @@
                 imgUrlArr = allData["ld_popup_img"].split("/");
                 break;
             case "ld_mobile_bt_phone_img":
-                console.log('여기로 들어옴?');
-                
+                console.log("여기로 들어옴?");
+
                 imgUrlArr = allData["ld_mobile_bt_phone_img"].split("/");
                 break;
             case "ld_mobile_bt_event_img":
@@ -104,7 +104,7 @@
         }
 
         console.log(imgUrlArr);
-        
+
         // if (imgActType == "ld_logo") {
         //     imgUrlArr = allData["ld_logo"].split("/");
         // } else if (imgActType == "ld_ph_img") {
@@ -431,24 +431,24 @@
                 </td>
             </tr>
 
-            <!-- <tr>
-                <th class="border p-1 text-xs md:text-sm"> 헤더 배경색 </th>
+            <tr>
+                <th class="border p-1 text-xs md:text-sm"> DB 접수 제목 </th>
                 <td class="border p-1">
                     <input
                         type="text"
                         class="border text-sm border-gray-300 w-full py-2 px-2 rounded-md focus:ring-0 focus:border-blue-500"
-                        bind:value={allData["ld_bgcolor"]}
+                        bind:value={allData["ld_db_input_subject"]}
                     />
                 </td>
-                <th class="border p-1 text-xs md:text-sm"> 헤더 글자색 </th>
+                <!-- <th class="border p-1 text-xs md:text-sm"> 헤더 글자색 </th>
                 <td class="border p-1">
                     <input
                         type="text"
                         class="border text-sm border-gray-300 w-full py-2 px-2 rounded-md focus:ring-0 focus:border-blue-500"
                         bind:value={allData["ld_txtcolor"]}
                     />
-                </td>
-            </tr> -->
+                </td> -->
+            </tr>
             <tr>
                 <th class="border p-1 text-xs md:text-sm">로고이미지</th>
                 <td class="border p-1">
