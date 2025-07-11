@@ -701,7 +701,7 @@
     <div class="modal-box pretendard">
         <h3 class="text-lg font-bold">개인 정보 보호 동의 전문</h3>
         <div>
-            <p class="py-4">- 개인정보수집주체 : 애드피크</p>
+            <p class="py-4">- 개인정보수집주체 : 리치분양</p>
             <p>- 수집 목적 및 항목</p>
             <p>&nbsp;1) 수집목적 : 홍보 및 분양정보 안내</p>
             <p>&nbsp;2) 수집항목 : 이름, 연락처, 거주지</p>
