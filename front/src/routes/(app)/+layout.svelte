@@ -105,6 +105,8 @@
     }
 
     onMount(async () => {
+        console.log($page);
+
         // 공통 구간!!!
         const getVisitedCookie = Cookies.get("topby_visited");
         const referrer = document.referrer;
