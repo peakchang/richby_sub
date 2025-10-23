@@ -613,6 +613,11 @@
                         <div style="color:black !important;">
                             {#if siteData.ld_invite_message}
                                 {siteData.ld_invite_message}
+                            {:else if $page.url.host.includes("cemtricsd")}
+                                <span>
+                                    홍보관은 초대장이 있으신분만 방문
+                                    가능합니다.
+                                </span>
                             {:else}
                                 <span>
                                     모델하우스는 초대장이 있으신분만 방문
